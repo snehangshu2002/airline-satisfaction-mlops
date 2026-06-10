@@ -6,8 +6,11 @@ import sys
 import joblib
 from src.logger_config import get_logger
 from src.exception import CustomException
+from src.utils import load_params
 
 logger = get_logger( os.path.splitext(os.path.basename(__file__))[0])
+
+params = load_params()
 
 def load_data(file_path:str)->pd.DataFrame:
     """
@@ -65,23 +68,35 @@ def save_model(model,file_path:str)->None:
     
 def main():
     try:
-        params ={
-                    "colsample_bytree": 0.8,
-                    "learning_rate": 0.1,
-                    "max_depth": 7,
-                    "n_estimators": 300,
-                    "enable_categorical": False}
+        model_params = {
+            "n_estimators":     params["model"]["n_estimators"],
+            "learning_rate":    params["model"]["learning_rate"],
+            "max_depth":        params["model"]["max_depth"],
+            "colsample_bytree": params["model"]["colsample_bytree"],
+            "subsample":        params["model"]["subsample"],
+            "random_state":     params["model"]["random_state"],
+            "enable_categorical": params["model"]["enable_categorical"],
+            "eval_metric": "logloss"
+        }
         
-        train_data = load_data("data\processed\train.csv")
-        X_train = train_data.drop(columns=['Satisfaction'])
-        y_train = train_data['Satisfaction']
+        train_data = load_data(params["data"]["processed_train_path"])
+        target = params["features"]["target_col"]
         
-        model = train_model(X_train,y_train,params)
+        X_train = train_data.drop(columns=[target])
+        y_train = train_data[target]
         
-        model_save_path = "models/xgboost.pkl"
+        model = train_model(X_train,y_train,model_params)
+        
+        model_save_path = params["artifacts"]["model_path"]
         save_model(model,model_save_path)
+        
+        logger.info("Training pipeline completed successfully")
     except Exception as e:
         CustomException(e,sys)
-
-if __name__ =="__main__":
-    main()
+        
+        
+if __name__ == "__main__":
+    try:
+        main()
+    except CustomException:
+        sys.exit(1)
