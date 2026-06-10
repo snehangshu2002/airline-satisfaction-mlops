@@ -8,37 +8,36 @@ from typing import Tuple
 
 from src.logger_config import get_logger
 from src.exception import CustomException
+from src.utils import load_params
+
+params = load_params()
 
 # Configure logger
 logger = get_logger( os.path.splitext(os.path.basename(__file__))[0])
 
-rating_cols = [
-    'Departure and Arrival Time Convenience', 'Ease of Online Booking',
-    'Check-in Service', 'Online Boarding', 'Gate Location',
-    'On-board Service', 'Seat Comfort', 'Leg Room Service',
-    'Cleanliness', 'Food and Drink', 'In-flight Service',
-    'In-flight Wifi Service', 'In-flight Entertainment', 'Baggage Handling'
-]
+
 
 def feature_engineering(train_data: pd.DataFrame, test_data: pd.DataFrame) -> Tuple[pd.DataFrame, np.ndarray, pd.DataFrame, np.ndarray, OneHotEncoder, StandardScaler, LabelEncoder]:
     """Apply encoder and scaler to the data."""
     try:
         logger.info("Starting feature engineering process")
-        categorical_cols = ['Gender', 'Customer Type', 'Type of Travel', 'Class']
-        rating_medians = {}
-        # Initialize OneHotEncoder
-        # Note: Specifying drop='first' is not compatible with handle_unknown='ignore'.
-        # Since we use tree-based models like XGBoost, drop='first' is not required.
+        categorical_cols = params["feature"]["categorical_cols"]
+        rating_cols = params["features"]["rating_cols"]
+        target_col = params["features"]["target_col"]
+        
+        
+        
         logger.info("Initializing OneHotEncoder and fitting on training categorical data")
         encoder = OneHotEncoder(sparse_output=False, handle_unknown="ignore", dtype="i2")
         
-        X_train = train_data.drop(columns=['Satisfaction'])
-        y_train = train_data['Satisfaction']  
+        X_train = train_data.drop(columns=target_col)
+        y_train = train_data[target_col]  
         
-        X_test = test_data.drop(columns=['Satisfaction'])
-        y_test = test_data['Satisfaction']    
+        X_test = test_data.drop(columns=target_col)
+        y_test = test_data[target_col]    
         
         # Fit and transform the categorical columns on training set
+        logger.info("Fitting OneHotEncoder on train categorical columns")
         encoded_features = encoder.fit_transform(X_train[categorical_cols])
         encoded_df = pd.DataFrame(
             encoded_features, 
@@ -77,6 +76,9 @@ def feature_engineering(train_data: pd.DataFrame, test_data: pd.DataFrame) -> Tu
         # Convert scaled arrays back to DataFrames to preserve column names and indices
         X_train = pd.DataFrame(X_train_scaled, columns=X_train.columns, index=X_train.index)
         X_test = pd.DataFrame(X_test_scaled, columns=X_test.columns, index=X_test.index)
+        
+        rating_medians = {}
+        
         for col in rating_cols:
             temp = X_train[col].replace(0, np.nan)
             rating_medians[col] = temp.median()
@@ -90,32 +92,33 @@ def feature_engineering(train_data: pd.DataFrame, test_data: pd.DataFrame) -> Tu
 def main():
     try:
         # Define paths
-        raw_train_path = "data/raw/train.csv"
-        raw_test_path = "data/raw/test.csv"
-        processed_dir = "data/processed"
-        models_dir = "models"
+        raw_train = params["data"]["train_path"]
+        raw_test = params["data"]["test_path"]
+        processed_train = params["data"]["processed_train_path"]
+        processed_test = params["data"]["processed_test_path"]
+        models_dir = params["artifacts"]["models_dir"]
         
-        os.makedirs(processed_dir, exist_ok=True)
+        os.makedirs(os.path.dirname(processed_train), exist_ok=True)
         os.makedirs(models_dir, exist_ok=True)
         
-        logger.info(f"Loading raw train data from {raw_train_path}")
-        train_df = pd.read_csv(raw_train_path)
-        logger.info(f"Loading raw test data from {raw_test_path}")
-        test_df = pd.read_csv(raw_test_path)
+        logger.info(f"Loading raw train data from {raw_train}")
+        train_df = pd.read_csv(raw_train)
+        logger.info(f"Loading raw test data from {raw_test}")
+        test_df = pd.read_csv(raw_test)
         
         # Apply feature engineering
         X_train, y_train, X_test, y_test, encoder, scaler, label_encoder,rating_medians = feature_engineering(train_df, test_df)
         
         # Combine X and y back to DataFrames for saving
         train_processed = X_train.copy()
-        train_processed['Satisfaction'] = y_train
+        train_processed[params["features"]["target_col"]] = y_train
         
         test_processed = X_test.copy()
-        test_processed['Satisfaction'] = y_test
+        test_processed[params["features"]["target_col"]] = y_test
         
         # Save processed data
-        train_processed_path = os.path.join(processed_dir, "train.csv")
-        test_processed_path = os.path.join(processed_dir, "test.csv")
+        train_processed_path = os.path.join(processed_train,index = False)
+        test_processed_path = os.path.join(processed_test,index = False)
         
         logger.info(f"Saving processed train data to {train_processed_path}")
         train_processed.to_csv(train_processed_path, index=False)
@@ -125,10 +128,10 @@ def main():
         
         # Save preprocessors
         logger.info("Saving preprocessing models/objects to models directory")
-        joblib.dump(encoder, os.path.join(models_dir, "encoder.pkl"))
-        joblib.dump(scaler, os.path.join(models_dir, "scaler.pkl"))
-        joblib.dump(label_encoder, os.path.join(models_dir, "label_encoder.pkl"))
-        joblib.dump(rating_medians, os.path.join(models_dir, "rating_medians.pkl"))
+        joblib.dump(encoder, params["artifacts"]["encoder_path"])
+        joblib.dump(scaler, params["artifacts"]["scaler_path"])
+        joblib.dump(label_encoder, params["artifacts"]["label_encoder_path"])
+        joblib.dump(rating_medians, params["artifacts"]["rating_medians_path"])
         
         logger.info("Feature engineering script executed successfully")
         
