@@ -7,6 +7,7 @@ import joblib
 from src.logger_config import get_logger
 from src.exception import CustomException
 from src.utils import load_params
+from dvclive import Live
 
 logger = get_logger( os.path.splitext(os.path.basename(__file__))[0])
 
@@ -85,12 +86,18 @@ def main():
         X_train = train_data.drop(columns=[target])
         y_train = train_data[target]
         
-        model = train_model(X_train,y_train,model_params)
+        with Live(dir = "dvclive",save_dvc_exp = True) as live:
+            live.log_params(model_params)
+            logger.info("Logged hyperparameters to DVCLive")
+            model = train_model(X_train,y_train,model_params)
+            
+            live.log_params("train_samples",X_train.shape[0])
+            live.log_param("n_features", X_train.shape[1])
         
-        model_save_path = params["artifacts"]["model_path"]
-        save_model(model,model_save_path)
+            model_save_path = params["artifacts"]["model_path"]
+            save_model(model,model_save_path)
         
-        logger.info("Training pipeline completed successfully")
+            logger.info("Training pipeline completed successfully")
     except Exception as e:
         CustomException(e,sys)
         
