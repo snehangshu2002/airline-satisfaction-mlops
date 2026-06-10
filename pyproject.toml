@@ -5,7 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "dvc>=3.67.1",
+    "dvc[s3]>=3.67.1",
     "dvclive>=3.49.1",
     "joblib>=1.5.3",
     "loguru>=0.7.3",
