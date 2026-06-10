@@ -1,0 +1,171 @@
+schema: '2.0'
+stages:
+  data_ingestion:
+    cmd: uv run src/components/data_ingestion.py
+    deps:
+    - path: data/airline_satisfaction.csv
+      hash: md5
+      md5: d26e19c434f20d0c7e2f5ed586008f07
+      size: 12875200
+    - path: src/components/data_ingestion.py
+      hash: md5
+      md5: 55cab834515c1a2758f83c7a26bc2a64
+      size: 2979
+    params:
+      params.yaml:
+        data.random_state: 42
+        data.test_size: 0.2
+        features.drop_cols: -ID
+    outs:
+    - path: data/raw/test.csv
+      hash: md5
+      md5: f7c72ba0ada0d392fe530b908a884232
+      size: 2672374
+    - path: data/raw/train.csv
+      hash: md5
+      md5: 39c08f43e703ebc7fdfdddb916ded121
+      size: 10682225
+  feature_engineering:
+    cmd: uv run src/components/feature_engineering.py
+    deps:
+    - path: data/raw/test.csv
+      hash: md5
+      md5: f7c72ba0ada0d392fe530b908a884232
+      size: 2672374
+    - path: data/raw/train.csv
+      hash: md5
+      md5: 39c08f43e703ebc7fdfdddb916ded121
+      size: 10682225
+    - path: src/components/feature_engineering.py
+      hash: md5
+      md5: 984bc6f0e9a131971fa63611b81e5d9d
+      size: 5893
+    params:
+      params.yaml:
+        features.categorical_cols:
+        - Gender
+        - Customer Type
+        - Type of Travel
+        - Class
+        features.rating_cols:
+        - Departure and Arrival Time Convenience
+        - Ease of Online Booking
+        - Check-in Service
+        - Online Boarding
+        - Gate Location
+        - On-board Service
+        - Seat Comfort
+        - Leg Room Service
+        - Cleanliness
+        - Food and Drink
+        - In-flight Service
+        - In-flight Wifi Service
+        - In-flight Entertainment
+        - Baggage Handling
+        features.target_col: Satisfaction
+    outs:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 2f784fbae6d08c42d6e8589fa71b2a9e
+      size: 14350884
+    - path: data/processed/train.csv
+      hash: md5
+      md5: df45c58917885343080104f2567725c7
+      size: 57398013
+    - path: models/encoder.pkl
+      hash: md5
+      md5: 2a8b6b6c47f44decb5bddf39db86de69
+      size: 1685
+    - path: models/label_encoder.pkl
+      hash: md5
+      md5: 50a0418190869d739f3b2847ecc2ca66
+      size: 511
+    - path: models/rating_medians.pkl
+      hash: md5
+      md5: 9df67fe79b176042033e9797227641af
+      size: 661
+    - path: models/scaler.pkl
+      hash: md5
+      md5: acf02daf78122db3c73d87e5b70173db
+      size: 2055
+  train:
+    cmd: uv run src/components/train.py
+    deps:
+    - path: data/processed/train.csv
+      hash: md5
+      md5: df45c58917885343080104f2567725c7
+      size: 57398013
+    - path: src/components/train.py
+      hash: md5
+      md5: b3d30880a1b1d91c977005e4ffd98bb9
+      size: 3353
+    params:
+      params.yaml:
+        features.target_col: Satisfaction
+        model:
+          n_estimators: 300
+          learning_rate: 0.1
+          max_depth: 7
+          colsample_bytree: 0.8
+          subsample: 0.8
+          random_state: 42
+          enable_categorical: false
+    outs:
+    - path: models/xgboost.pkl
+      hash: md5
+      md5: 68f156464a771b52f4133eba4cc4aa1d
+      size: 1705928
+  evaluate:
+    cmd: uv run src/components/evaluate.py
+    deps:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 2f784fbae6d08c42d6e8589fa71b2a9e
+      size: 14350884
+    - path: models/encoder.pkl
+      hash: md5
+      md5: 2a8b6b6c47f44decb5bddf39db86de69
+      size: 1685
+    - path: models/label_encoder.pkl
+      hash: md5
+      md5: 50a0418190869d739f3b2847ecc2ca66
+      size: 511
+    - path: models/rating_medians.pkl
+      hash: md5
+      md5: 9df67fe79b176042033e9797227641af
+      size: 661
+    - path: models/scaler.pkl
+      hash: md5
+      md5: acf02daf78122db3c73d87e5b70173db
+      size: 2055
+    - path: models/xgboost.pkl
+      hash: md5
+      md5: 68f156464a771b52f4133eba4cc4aa1d
+      size: 1705928
+    - path: src/components/evaluate.py
+      hash: md5
+      md5: 723ae6dfebfb1d83c279ace272f0a453
+      size: 3603
+    params:
+      params.yaml:
+        features.rating_cols:
+        - Departure and Arrival Time Convenience
+        - Ease of Online Booking
+        - Check-in Service
+        - Online Boarding
+        - Gate Location
+        - On-board Service
+        - Seat Comfort
+        - Leg Room Service
+        - Cleanliness
+        - Food and Drink
+        - In-flight Service
+        - In-flight Wifi Service
+        - In-flight Entertainment
+        - Baggage Handling
+        features.target_col: Satisfaction
+    outs:
+    - path: reports/metrics.json
+      hash: md5
+      md5: f4c19589731ab444cf6229c12cb73af5
+      size: 145
