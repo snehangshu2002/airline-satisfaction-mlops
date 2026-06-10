@@ -5,51 +5,23 @@ import joblib
 from pathlib import Path
 import sys
 import json
-from sklearn.metrics import accuracy_score, precision_score, recall_score, roc_auc_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, roc_auc_score,ConfusionMatrixDisplay,confusion_matrix
 
 from src.logger_config import get_logger
 from src.exception import CustomException
 from src.utils import load_params
+from dvclive import Live
 
 params = load_params()
 
 logger = get_logger( os.path.splitext(os.path.basename(__file__))[0])
 
 
-
-# def load_model(file_path:str):
-#     """Load trained model from a file"""
-#     try:
-#         logger.info("Model loading Started")
-#         with open (file_path,'rb') as file:
-#             model = joblib.load(file)
-#             logger.debug("Model loaded Successful")
-            
-#             return model
-#     except Exception as e:
-#         CustomException(e,sys)
-
-
-# def load_data(file_path:str)->pd.DataFrame:
-#     """
-#     Load data from a CSV file.
-    
-#     :param file_path: Path to the CSV file
-#     :return: Loaded DataFrame
-#     """
-#     try:
-#         logger.info("Load the data")
-#         df=pd.read_csv(file_path)
-#         logger.debug(f"data loaded from {file_path} with shape {df.shape}")
-#         return df
-#     except Exception as e:
-#         raise CustomException(e,sys)
-
-def evaluate_model(model,X_test:np.ndarray,y_test:np.ndarray)->dict:
+def evaluate_model(model,X_test:np.ndarray,y_test:np.ndarray,live:Live)->dict:
      """Evaluate the model and return the evaluation metrics."""
      try:
          y_pred = model.predict(X_test)
-         y_Pred_prob = model.predict_proba(X_test)[:,1]
+         y_pred_prob = model.predict_proba(X_test)[:,1]
          
          accuracy = accuracy_score(y_test,y_pred)
          logger.info(" test accuracy calculated")
@@ -57,7 +29,7 @@ def evaluate_model(model,X_test:np.ndarray,y_test:np.ndarray)->dict:
          logger.info(" test precision calculated")
          recall = recall_score(y_test,y_pred)
          logger.info(" test recall calculated")
-         auc = roc_auc_score(y_test,y_Pred_prob)
+         auc = roc_auc_score(y_test,y_pred_prob)
          logger.info(" test auc calculated")
          
          metrics_dict = {
@@ -67,7 +39,34 @@ def evaluate_model(model,X_test:np.ndarray,y_test:np.ndarray)->dict:
              "auc":auc
          }
          
+         for metric_name,value in metrics_dict.items():
+             live.log_metric(metric_name,value)
+             logger.debug(f"Logged {metric_name}: {value}")
+             
+        
+         cm = confusion_matrix(y_test,y_pred)
+         live.log_sklearn_plot(
+             "confusion_matrix",
+             y_test.tolist(),
+             y_pred.tolist(),
+             name="Confusion_matirx",
+             normalized=True
+         )
+         logger.debug("Confusion matrix plot logged")
+         
+         # Log ROC curve
+         # Log ROC curve
+         live.log_sklearn_plot(
+            "roc",
+            y_test.tolist(),
+            y_pred_prob.tolist(),
+            name="roc_curve"
+         )
+         logger.debug("ROC curve plot logged")
+
+         
          logger.debug('Model evaluation metrics calculated')
+         
          return metrics_dict
      
      except Exception as e:
@@ -98,9 +97,11 @@ def main():
         X_test = test_data.drop(columns=[target_col])
         y_test = test_data[target_col]
 
-        metrics = evaluate_model(model,X_test,y_test)
-        save_metrics(metrics,params["evaluate"]["metrics_path"])
-        logger.info(f"Evaluation complete: {metrics}")
+        with Live(dir="dvclive",resume=True) as live:
+            
+            metrics = evaluate_model(model,X_test,y_test)
+            save_metrics(metrics,params["evaluate"]["metrics_path"])
+            logger.info(f"Evaluation complete: {metrics}")
     except Exception as e:
         CustomException(e,sys)
         
