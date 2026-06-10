@@ -13,3 +13,4 @@ models
 logs
 *.pkl
 *.log
+/dvclive
