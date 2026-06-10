@@ -1,0 +1,52 @@
+data :
+  raw_path : data\airline_satisfaction.csv
+  train_path : data\raw\train.csv
+  test_path : data\raw\test.csv
+  processed_train_path: data/processed/train.csv
+  processed_test_path: data/processed/test.csv
+  test_size: 0.2
+  random_state: 42
+
+feature:
+  target_col : Satisfraction
+  drop_cols :
+    -ID
+  categorical_cols:
+    - Gender
+    - Customer Type
+    - Type of Travel
+    - Class
+  rating_cols:
+    - Departure and Arrival Time Convenience
+    - Ease of Online Booking
+    - Check-in Service
+    - Online Boarding
+    - Gate Location
+    - On-board Service
+    - Seat Comfort
+    - Leg Room Service
+    - Cleanliness
+    - Food and Drink
+    - In-flight Service
+    - In-flight Wifi Service
+    - In-flight Entertainment
+    - Baggage Handling
+model:
+  n_estimators: 300
+  learning_rate: 0.1
+  max_depth: 7
+  colsample_bytree: 0.8
+  subsample: 0.8
+  random_state: 42
+  enable_categorical: false
+
+artifacts:
+  models_dir: models
+  encoder_path: models/encoder.pkl
+  scaler_path: models/scaler.pkl
+  label_encoder_path: models/label_encoder.pkl
+  rating_medians_path: models/rating_medians.pkl
+  model_path: models/xgboost.pkl
+
+evaluate:
+  metrics_path: reports/metrics.json
