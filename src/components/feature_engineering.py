@@ -117,8 +117,8 @@ def main():
         test_processed[params["features"]["target_col"]] = y_test
         
         # Save processed data
-        train_processed_path = os.path.join(processed_train,index = False)
-        test_processed_path = os.path.join(processed_test,index = False)
+        train_processed_path = os.path.join(processed_train)
+        test_processed_path = os.path.join(processed_test)
         
         logger.info(f"Saving processed train data to {train_processed_path}")
         train_processed.to_csv(train_processed_path, index=False)
