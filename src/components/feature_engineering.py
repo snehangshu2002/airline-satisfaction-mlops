@@ -21,7 +21,7 @@ def feature_engineering(train_data: pd.DataFrame, test_data: pd.DataFrame) -> Tu
     """Apply encoder and scaler to the data."""
     try:
         logger.info("Starting feature engineering process")
-        categorical_cols = params["feature"]["categorical_cols"]
+        categorical_cols = params["features"]["categorical_cols"]
         rating_cols = params["features"]["rating_cols"]
         target_col = params["features"]["target_col"]
         
