@@ -25,7 +25,7 @@ def feature_engineering(train_data: pd.DataFrame, test_data: pd.DataFrame) -> Tu
     try:
         logger.info("Starting feature engineering process")
         categorical_cols = ['Gender', 'Customer Type', 'Type of Travel', 'Class']
-
+        rating_medians = {}
         # Initialize OneHotEncoder
         # Note: Specifying drop='first' is not compatible with handle_unknown='ignore'.
         # Since we use tree-based models like XGBoost, drop='first' is not required.
@@ -77,9 +77,12 @@ def feature_engineering(train_data: pd.DataFrame, test_data: pd.DataFrame) -> Tu
         # Convert scaled arrays back to DataFrames to preserve column names and indices
         X_train = pd.DataFrame(X_train_scaled, columns=X_train.columns, index=X_train.index)
         X_test = pd.DataFrame(X_test_scaled, columns=X_test.columns, index=X_test.index)
+        for col in rating_cols:
+            temp = X_train[col].replace(0, np.nan)
+            rating_medians[col] = temp.median()
         
         logger.info("Feature engineering process completed successfully")
-        return X_train, y_train, X_test, y_test, encoder, scaler, label_encoder
+        return X_train, y_train, X_test, y_test, encoder, scaler, label_encoder,rating_medians
 
     except Exception as e:
         raise CustomException(e, sys)
@@ -101,7 +104,7 @@ def main():
         test_df = pd.read_csv(raw_test_path)
         
         # Apply feature engineering
-        X_train, y_train, X_test, y_test, encoder, scaler, label_encoder = feature_engineering(train_df, test_df)
+        X_train, y_train, X_test, y_test, encoder, scaler, label_encoder,rating_medians = feature_engineering(train_df, test_df)
         
         # Combine X and y back to DataFrames for saving
         train_processed = X_train.copy()
@@ -125,6 +128,7 @@ def main():
         joblib.dump(encoder, os.path.join(models_dir, "encoder.pkl"))
         joblib.dump(scaler, os.path.join(models_dir, "scaler.pkl"))
         joblib.dump(label_encoder, os.path.join(models_dir, "label_encoder.pkl"))
+        joblib.dump(rating_medians, os.path.join(models_dir, "rating_medians.pkl"))
         
         logger.info("Feature engineering script executed successfully")
         
