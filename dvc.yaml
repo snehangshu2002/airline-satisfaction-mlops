@@ -5,9 +5,11 @@ stages:
       - src/components/data_ingestion.py
       - data/airline_satisfaction.csv
     params:
+      - data.raw_path
       - data.test_size
       - data.random_state
       - features.drop_cols
+      - features.rating_cols
     outs:
       - data/raw/train.csv
       - data/raw/test.csv
@@ -19,9 +21,17 @@ stages:
       - data/raw/train.csv
       - data/raw/test.csv
     params:
+      - data.train_path
+      - data.test_path
+      - data.processed_train_path
+      - data.processed_test_path
       - features.categorical_cols
       - features.rating_cols
       - features.target_col
+      - artifacts.encoder_path
+      - artifacts.scaler_path
+      - artifacts.label_encoder_path
+      - artifacts.rating_medians_path
     outs:
       - data/processed/train.csv
       - data/processed/test.csv
@@ -37,9 +47,12 @@ stages:
       - data/processed/train.csv
     params:
       - model
+      - data.processed_train_path
       - features.target_col
+      - artifacts.model_path
     outs:
       - models/xgboost.pkl
+      - dvclive
 
   evaluate:
     cmd: uv run src/components/evaluate.py
@@ -52,8 +65,12 @@ stages:
       - models/label_encoder.pkl
       - models/rating_medians.pkl
     params:
+      - data.processed_test_path
       - features.target_col
       - features.rating_cols
+      - features.categorical_cols
+      - artifacts
+      - evaluate.metrics_path
     metrics:
       - reports/metrics.json:
           cache: false
