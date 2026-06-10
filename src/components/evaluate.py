@@ -87,43 +87,17 @@ def save_metrics(metrics: dict, file_path: str) -> None:
         
 def main():
     try:
-        
-        categorical_cols = params["features"]["categorical_cols"]
-        rating_cols = params["features"]["rating_cols"]
         target_col = params["features"]["target_col"]
-        
-        encoder = joblib.load(params["artifacts"]["encoder_path"])
-        logger.debug("Encoder saved object loaded")
-        scaler = joblib.load(params["artifacts"]["scaler_path"])
-        logger.debug("Scaler  saved object loaded")
-        label_encoder = joblib.load(params["artifacts"]["label_encoder_path"])
-        logger.debug("Label_encoder saved object loaded")
-        
-        rating_medians = joblib.load(params["artifacts"]["rating_medians_path"])
-
         model = joblib.load(params["artifacts"]["model_path"])
-        
-        logger.info("All artifacts loaded")
-        
+        logger.info("Model loaded")
+
         test_data = pd.read_csv(params["data"]["processed_test_path"])
+        if target_col not in test_data.columns:
+            raise ValueError(f"Target column '{target_col}' not found in processed test data. Available columns: {list(test_data.columns)}")
+
         X_test = test_data.drop(columns=[target_col])
         y_test = test_data[target_col]
-        
-        for col in rating_cols:
-            if X_test[col].iloc[0]==0:
-                X_test[col]=rating_medians[col]
-        encoded = encoder.transform(X_test[categorical_cols])
-        encoded_X_test = pd.DataFrame(
-            encoded,
-            columns=encoder.get_feature_names_out(),
-            dtype=int
-        )
-        # Drop categorical cols  and concat enocode  
-        X_test=X_test.drop(columns=categorical_cols)
-        X_test = pd.concat([X_test,encoded_X_test],axis=1)
-        
-        X_test = scaler.transform(X_test)
-        
+
         metrics = evaluate_model(model,X_test,y_test)
         save_metrics(metrics,params["evaluate"]["metrics_path"])
         logger.info(f"Evaluation complete: {metrics}")
