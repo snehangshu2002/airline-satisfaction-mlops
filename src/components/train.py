@@ -91,7 +91,7 @@ def main():
             logger.info("Logged hyperparameters to DVCLive")
             model = train_model(X_train,y_train,model_params)
             
-            live.log_params("train_samples",X_train.shape[0])
+            live.log_param("train_samples", X_train.shape[0])
             live.log_param("n_features", X_train.shape[1])
         
             model_save_path = params["artifacts"]["model_path"]
