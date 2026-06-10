@@ -99,7 +99,7 @@ def main():
 
         with Live(dir="dvclive",resume=True) as live:
             
-            metrics = evaluate_model(model,X_test,y_test)
+            metrics = evaluate_model(model,X_test,y_test,live)
             save_metrics(metrics,params["evaluate"]["metrics_path"])
             logger.info(f"Evaluation complete: {metrics}")
     except Exception as e:
