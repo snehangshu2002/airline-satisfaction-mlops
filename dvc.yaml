@@ -2,75 +2,96 @@ stages:
   data_ingestion:
     cmd: uv run src/components/data_ingestion.py
     deps:
-      - src/components/data_ingestion.py
-      - data/airline_satisfaction.csv
+    - src/components/data_ingestion.py
+    - data/airline_satisfaction.csv
     params:
-      - data.raw_path
-      - data.test_size
-      - data.random_state
-      - features.drop_cols
-      - features.rating_cols
+    - data.raw_path
+    - data.test_size
+    - data.random_state
+    - features.drop_cols
+    - features.rating_cols
     outs:
-      - data/raw/train.csv
-      - data/raw/test.csv
+    - data/raw/train.csv
+    - data/raw/test.csv
 
   feature_engineering:
     cmd: uv run src/components/feature_engineering.py
     deps:
-      - src/components/feature_engineering.py
-      - data/raw/train.csv
-      - data/raw/test.csv
+    - src/components/feature_engineering.py
+    - data/raw/train.csv
+    - data/raw/test.csv
     params:
-      - data.train_path
-      - data.test_path
-      - data.processed_train_path
-      - data.processed_test_path
-      - features.categorical_cols
-      - features.rating_cols
-      - features.target_col
-      - artifacts.encoder_path
-      - artifacts.scaler_path
-      - artifacts.label_encoder_path
-      - artifacts.rating_medians_path
+    - data.train_path
+    - data.test_path
+    - data.processed_train_path
+    - data.processed_test_path
+    - features.categorical_cols
+    - features.rating_cols
+    - features.target_col
+    - artifacts.encoder_path
+    - artifacts.scaler_path
+    - artifacts.label_encoder_path
+    - artifacts.rating_medians_path
     outs:
-      - data/processed/train.csv
-      - data/processed/test.csv
-      - models/encoder.pkl
-      - models/scaler.pkl
-      - models/label_encoder.pkl
-      - models/rating_medians.pkl
+    - data/processed/train.csv
+    - data/processed/test.csv
+    - models/encoder.pkl
+    - models/scaler.pkl
+    - models/label_encoder.pkl
+    - models/rating_medians.pkl
 
   train:
     cmd: uv run src/components/train.py
     deps:
-      - src/components/train.py
-      - data/processed/train.csv
+    - src/components/train.py
+    - data/processed/train.csv
     params:
-      - model
-      - data.processed_train_path
-      - features.target_col
-      - artifacts.model_path
+    - model
+    - data.processed_train_path
+    - features.target_col
+    - artifacts.model_path
     outs:
-      - models/xgboost.pkl
-      - dvclive
+    - models/xgboost.pkl
+    - dvclive
 
   evaluate:
     cmd: uv run src/components/evaluate.py
     deps:
-      - src/components/evaluate.py
-      - data/processed/test.csv
-      - models/xgboost.pkl
-      - models/encoder.pkl
-      - models/scaler.pkl
-      - models/label_encoder.pkl
-      - models/rating_medians.pkl
+    - src/components/evaluate.py
+    - data/processed/test.csv
+    - models/xgboost.pkl
+    - models/encoder.pkl
+    - models/scaler.pkl
+    - models/label_encoder.pkl
+    - models/rating_medians.pkl
     params:
-      - data.processed_test_path
-      - features.target_col
-      - features.rating_cols
-      - features.categorical_cols
-      - artifacts
-      - evaluate.metrics_path
+    - data.processed_test_path
+    - features.target_col
+    - features.rating_cols
+    - features.categorical_cols
+    - artifacts
+    - evaluate.metrics_path
     metrics:
-      - reports/metrics.json:
-          cache: false
+    - reports/metrics.json:
+        cache: false
+params:
+- dvclive/params.yaml
+metrics:
+- dvclive/metrics.json
+plots:
+- dvclive/plots/metrics:
+    x: step
+- dvclive/plots/sklearn/Confusion_matirx.json:
+    template: confusion_normalized
+    x: actual
+    y: predicted
+    title: Confusion Matrix
+    x_label: True Label
+    y_label: Predicted Label
+- dvclive/plots/sklearn/roc_curve.json:
+    template: simple
+    x: fpr
+    y: tpr
+    title: Receiver operating characteristic (ROC)
+    x_label: False Positive Rate
+    y_label: True Positive Rate

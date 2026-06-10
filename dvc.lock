@@ -14,8 +14,24 @@ stages:
     params:
       params.yaml:
         data.random_state: 42
+        data.raw_path: data\airline_satisfaction.csv
         data.test_size: 0.2
         features.drop_cols: -ID
+        features.rating_cols:
+        - Departure and Arrival Time Convenience
+        - Ease of Online Booking
+        - Check-in Service
+        - Online Boarding
+        - Gate Location
+        - On-board Service
+        - Seat Comfort
+        - Leg Room Service
+        - Cleanliness
+        - Food and Drink
+        - In-flight Service
+        - In-flight Wifi Service
+        - In-flight Entertainment
+        - Baggage Handling
     outs:
     - path: data/raw/test.csv
       hash: md5
@@ -42,6 +58,14 @@ stages:
       size: 5893
     params:
       params.yaml:
+        artifacts.encoder_path: models/encoder.pkl
+        artifacts.label_encoder_path: models/label_encoder.pkl
+        artifacts.rating_medians_path: models/rating_medians.pkl
+        artifacts.scaler_path: models/scaler.pkl
+        data.processed_test_path: data/processed/test.csv
+        data.processed_train_path: data/processed/train.csv
+        data.test_path: data\raw\test.csv
+        data.train_path: data\raw\train.csv
         features.categorical_cols:
         - Gender
         - Customer Type
@@ -97,24 +121,31 @@ stages:
       size: 57398013
     - path: src/components/train.py
       hash: md5
-      md5: b3d30880a1b1d91c977005e4ffd98bb9
-      size: 3353
+      md5: 65c73c5b4055ddf8211c4d891f2eaef8
+      size: 3704
     params:
       params.yaml:
+        artifacts.model_path: models/xgboost.pkl
+        data.processed_train_path: data/processed/train.csv
         features.target_col: Satisfaction
         model:
           n_estimators: 300
           learning_rate: 0.1
-          max_depth: 7
+          max_depth: 5
           colsample_bytree: 0.8
           subsample: 0.8
           random_state: 42
           enable_categorical: false
     outs:
+    - path: dvclive
+      hash: md5
+      md5: cb02fca781ea1e406afc032840b5e6a5.dir
+      size: 2128838
+      nfiles: 8
     - path: models/xgboost.pkl
       hash: md5
-      md5: 68f156464a771b52f4133eba4cc4aa1d
-      size: 1705928
+      md5: b7d42fca6ad34f83255586b5e136d908
+      size: 722127
   evaluate:
     cmd: uv run src/components/evaluate.py
     deps:
@@ -140,14 +171,28 @@ stages:
       size: 2055
     - path: models/xgboost.pkl
       hash: md5
-      md5: 68f156464a771b52f4133eba4cc4aa1d
-      size: 1705928
+      md5: b7d42fca6ad34f83255586b5e136d908
+      size: 722127
     - path: src/components/evaluate.py
       hash: md5
-      md5: 723ae6dfebfb1d83c279ace272f0a453
-      size: 3603
+      md5: 0de3e5926c0c0c84ddfafd29d7ea9fdb
+      size: 3739
     params:
       params.yaml:
+        artifacts:
+          models_dir: models
+          encoder_path: models/encoder.pkl
+          scaler_path: models/scaler.pkl
+          label_encoder_path: models/label_encoder.pkl
+          rating_medians_path: models/rating_medians.pkl
+          model_path: models/xgboost.pkl
+        data.processed_test_path: data/processed/test.csv
+        evaluate.metrics_path: reports/metrics.json
+        features.categorical_cols:
+        - Gender
+        - Customer Type
+        - Type of Travel
+        - Class
         features.rating_cols:
         - Departure and Arrival Time Convenience
         - Ease of Online Booking
@@ -167,5 +212,5 @@ stages:
     outs:
     - path: reports/metrics.json
       hash: md5
-      md5: f4c19589731ab444cf6229c12cb73af5
+      md5: 5678e1b7ca7d31a562f1646f4dfb3d83
       size: 145
