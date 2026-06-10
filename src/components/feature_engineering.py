@@ -10,7 +10,7 @@ from src.logger_config import get_logger
 from src.exception import CustomException
 
 # Configure logger
-logger = get_logger("Feature_Engineering")
+logger = get_logger( os.path.splitext(os.path.basename(__file__))[0])
 
 rating_cols = [
     'Departure and Arrival Time Convenience', 'Ease of Online Booking',
@@ -122,9 +122,9 @@ def main():
         
         # Save preprocessors
         logger.info("Saving preprocessing models/objects to models directory")
-        joblib.dump(encoder, os.path.join(models_dir, "encoder.joblib"))
-        joblib.dump(scaler, os.path.join(models_dir, "scaler.joblib"))
-        joblib.dump(label_encoder, os.path.join(models_dir, "label_encoder.joblib"))
+        joblib.dump(encoder, os.path.join(models_dir, "encoder.pkl"))
+        joblib.dump(scaler, os.path.join(models_dir, "scaler.pkl"))
+        joblib.dump(label_encoder, os.path.join(models_dir, "label_encoder.pkl"))
         
         logger.info("Feature engineering script executed successfully")
         
