@@ -54,8 +54,8 @@ stages:
       size: 10682225
     - path: src/components/feature_engineering.py
       hash: md5
-      md5: 984bc6f0e9a131971fa63611b81e5d9d
-      size: 5893
+      md5: d411368193f2e37c9b44fa8acdb2a9e8
+      size: 6519
     params:
       params.yaml:
         artifacts.encoder_path: models/encoder.pkl
@@ -64,8 +64,6 @@ stages:
         artifacts.scaler_path: models/scaler.pkl
         data.processed_test_path: data/processed/test.csv
         data.processed_train_path: data/processed/train.csv
-        data.test_path: data\raw\test.csv
-        data.train_path: data\raw\train.csv
         features.categorical_cols:
         - Gender
         - Customer Type
@@ -121,8 +119,8 @@ stages:
       size: 57398013
     - path: src/components/train.py
       hash: md5
-      md5: ff9db2201ef42363b97289532305310a
-      size: 4175
+      md5: e9f676f8c73dd3149519182d6360a829
+      size: 4291
     params:
       params.yaml:
         artifacts.model_path: models/xgboost.pkl
@@ -169,7 +167,7 @@ stages:
       size: 722127
     - path: reports/mlflow_run_id.txt
       hash: md5
-      md5: e466385a9328ee6cbdac14c605e0fd2d
+      md5: c4d2c68e38dbb0f299ef1cdfb6e3dc64
       size: 32
     - path: src/components/evaluate.py
       hash: md5
