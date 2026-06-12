@@ -17,3 +17,5 @@ logs
 *.log
 /dvclive
 *.db
+.env
+mlruns/
