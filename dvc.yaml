@@ -21,8 +21,6 @@ stages:
     - data/raw/train.csv
     - data/raw/test.csv
     params:
-    - data.train_path
-    - data.test_path
     - data.processed_train_path
     - data.processed_test_path
     - features.categorical_cols
@@ -47,12 +45,11 @@ stages:
     - data/processed/train.csv
     params:
     - model
-    - data.processed_train_path
     - features.target_col
     - artifacts.model_path
     outs:
     - models/xgboost.pkl
-    - dvclive
+    
 
   evaluate:
     cmd: uv run src/components/evaluate.py
@@ -64,6 +61,7 @@ stages:
     - models/scaler.pkl
     - models/label_encoder.pkl
     - models/rating_medians.pkl
+    - reports/mlflow_run_id.txt 
     params:
     - data.processed_test_path
     - features.target_col
@@ -74,24 +72,3 @@ stages:
     metrics:
     - reports/metrics.json:
         cache: false
-params:
-- dvclive/params.yaml
-metrics:
-- dvclive/metrics.json
-plots:
-- dvclive/plots/metrics:
-    x: step
-- dvclive/plots/sklearn/Confusion_matirx.json:
-    template: confusion_normalized
-    x: actual
-    y: predicted
-    title: Confusion Matrix
-    x_label: True Label
-    y_label: Predicted Label
-- dvclive/plots/sklearn/roc_curve.json:
-    template: simple
-    x: fpr
-    y: tpr
-    title: Receiver operating characteristic (ROC)
-    x_label: False Positive Rate
-    y_label: True Positive Rate
