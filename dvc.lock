@@ -121,12 +121,11 @@ stages:
       size: 57398013
     - path: src/components/train.py
       hash: md5
-      md5: 65c73c5b4055ddf8211c4d891f2eaef8
-      size: 3704
+      md5: ff9db2201ef42363b97289532305310a
+      size: 4175
     params:
       params.yaml:
         artifacts.model_path: models/xgboost.pkl
-        data.processed_train_path: data/processed/train.csv
         features.target_col: Satisfaction
         model:
           n_estimators: 300
@@ -137,11 +136,6 @@ stages:
           random_state: 42
           enable_categorical: false
     outs:
-    - path: dvclive
-      hash: md5
-      md5: cb02fca781ea1e406afc032840b5e6a5.dir
-      size: 2128838
-      nfiles: 8
     - path: models/xgboost.pkl
       hash: md5
       md5: b7d42fca6ad34f83255586b5e136d908
@@ -173,10 +167,14 @@ stages:
       hash: md5
       md5: b7d42fca6ad34f83255586b5e136d908
       size: 722127
+    - path: reports/mlflow_run_id.txt
+      hash: md5
+      md5: e466385a9328ee6cbdac14c605e0fd2d
+      size: 32
     - path: src/components/evaluate.py
       hash: md5
-      md5: 0de3e5926c0c0c84ddfafd29d7ea9fdb
-      size: 3739
+      md5: f790d2bb92cb8fde9ca21ab7e8180461
+      size: 6881
     params:
       params.yaml:
         artifacts:
