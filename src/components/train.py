@@ -101,10 +101,14 @@ def main():
             
             model = train_model(X_train,y_train,model_params)
             
-            mlflow.xgboost.log_model(model,artifact_path="xgboost-model")
+            # mlflow.xgboost.log_model(model,artifact_path="xgboost-model")
+            
              
             model_save_path = params["artifacts"]["model_path"]
             save_model(model,model_save_path)
+            mlflow.log_artifact(model_save_path,artifact_path="model")
+            
+            
 
             os.makedirs("reports",exist_ok=True)
             with open("reports/mlflow_run_id.txt","w") as f:
