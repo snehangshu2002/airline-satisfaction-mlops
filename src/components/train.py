@@ -111,7 +111,7 @@ def main():
             
             mlflow.xgboost.log_model(
                     model,
-                    artifact_path="xgboost-model",
+                    name="xgboost-model",
                     input_example=X_train.iloc[:5]   
                 )
 

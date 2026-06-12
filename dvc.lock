@@ -119,8 +119,8 @@ stages:
       size: 57398013
     - path: src/components/train.py
       hash: md5
-      md5: 1b60beed6fbf3bbf0b3276aef353eae5
-      size: 4455
+      md5: 4468477e43051d8dd902907c08c67f36
+      size: 4575
     params:
       params.yaml:
         artifacts.model_path: models/xgboost.pkl
