@@ -7,7 +7,9 @@ import joblib
 from src.logger_config import get_logger
 from src.exception import CustomException
 from src.utils import load_params
-from dvclive import Live
+# from dvclive import Live
+import mlflow
+import mlflow.xgboost
 
 logger = get_logger( os.path.splitext(os.path.basename(__file__))[0])
 
@@ -86,17 +88,29 @@ def main():
         X_train = train_data.drop(columns=[target])
         y_train = train_data[target]
         
-        with Live(dir = "dvclive",save_dvc_exp = True) as live:
-            live.log_params(model_params)
-            logger.info("Logged hyperparameters to DVCLive")
+        mlflow.set_experiment("airline-satisfaction")
+        
+        with mlflow.start_run() as run:
+            logger.info(f"MLflow run started: {run.info.run_id}")
+            
+            #Log all hyperparameter
+            
+            mlflow.log_params(model_params)
+            mlflow.log_param("train_samples",X_train.shape[0])
+            mlflow.log_param("n_features",X_train.shape[1])
+            
             model = train_model(X_train,y_train,model_params)
             
-            live.log_param("train_samples", X_train.shape[0])
-            live.log_param("n_features", X_train.shape[1])
-        
+            mlflow.xgboost.log_model(model,artifact_path="xgboost-model")
+             
             model_save_path = params["artifacts"]["model_path"]
             save_model(model,model_save_path)
-        
+
+            os.makedirs("reports",exist_ok=True)
+            with open("reports/mlflow_run_id.txt","w") as f:
+                f.write(run.info.run_id)
+            logger.info(f"Run ID saved : {run.info.run_id}")
+            
             logger.info("Training pipeline completed successfully")
     except Exception as e:
         CustomException(e,sys)
