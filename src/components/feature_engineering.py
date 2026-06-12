@@ -8,7 +8,7 @@ from typing import Tuple
 
 from src.logger_config import get_logger
 from src.exception import CustomException
-from src.utils import load_params
+from src.utils import load_params,setup_mlflow      
 import mlflow
 
 params = load_params()
@@ -16,7 +16,6 @@ params = load_params()
 # Configure logger
 logger = get_logger( os.path.splitext(os.path.basename(__file__))[0])
 
-mlflow.set_tracking_uri("https://dagshub.com/snehangshu2002/airline-satisfaction-mlops.mlflow")
 
 def feature_engineering(train_data: pd.DataFrame, test_data: pd.DataFrame) -> Tuple[pd.DataFrame, np.ndarray, pd.DataFrame, np.ndarray, OneHotEncoder, StandardScaler, LabelEncoder]:
     """Apply encoder and scaler to the data."""
@@ -92,6 +91,7 @@ def feature_engineering(train_data: pd.DataFrame, test_data: pd.DataFrame) -> Tu
 
 def main():
     try:
+        setup_mlflow("airline-satisfaction_3")
         # Define paths
         raw_train = params["data"]["train_path"]
         raw_test = params["data"]["test_path"]
