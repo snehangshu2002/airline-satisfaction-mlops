@@ -1,11 +1,14 @@
 # logger_config.py
 
-import sys
 import os
+import sys
 from datetime import datetime
-from loguru import logger
 
-_initialized = False  # guard — ensure logger.remove() runs only once
+from loguru import logger
+from rich.console import Console
+from rich.logging import RichHandler
+
+_initialized = False
 
 
 def get_logger(
@@ -18,81 +21,91 @@ def get_logger(
     retention: str = "7 days",
     compression: str = "zip",
     json_logs: bool = False,
-    per_run: bool = True   # new — one file per run instead of appending
+    per_run: bool = True,
 ):
     """
-    Returns a configured loguru logger.
-
-    Args:
-        name          : Name for the log file (e.g. 'data_ingestion')
-        log_dir       : Directory to store log files (default: 'logs')
-        console_level : Minimum level for console output (default: 'DEBUG')
-        file_level    : Minimum level for .log file (default: 'DEBUG')
-        error_level   : Minimum level for errors-only file (default: 'ERROR')
-        rotation      : When to rotate log file (default: '1 day')
-        retention     : How long to keep old logs (default: '7 days')
-        compression   : Compression format for rotated logs (default: 'zip')
-        json_logs     : Whether to also write structured JSON logs (default: False)
-        per_run       : Create a new log file for each run (default: True)
+    Configure and return a Loguru logger with:
+    - Rich colored console output
+    - Per-run log files
+    - Separate error logs
+    - Optional JSON logs
     """
+
     global _initialized
 
     os.makedirs(log_dir, exist_ok=True)
 
-    # Remove default sink only once across all modules
     if not _initialized:
         logger.remove()
+
+        # Rich console for colorful logs
+        console = Console()
+
+        logger.add(
+            RichHandler(
+                console=console,
+                rich_tracebacks=True,
+                tracebacks_show_locals=True,
+                show_path=False,
+                show_time=True,
+                show_level=True,
+                markup=True,
+            ),
+            level=console_level,
+            format="{message}",
+        )
+
         _initialized = True
 
-    # Format using a callable — avoids KeyError when extra[name] is missing
-    def make_fmt(record):
-        record["extra"].setdefault("name", "root")
-        return "{time:YYYY-MM-DD HH:mm:ss} - {extra[name]} - {level} - {message}\n{exception}"
-
-    # Console sink
-    logger.add(
-        sys.stdout,
-        level=console_level,
-        format=make_fmt,
-        colorize=False   # colorize=True breaks when format is a callable
+    # File format
+    file_format = (
+        "{time:YYYY-MM-DD HH:mm:ss} | "
+        "{extra[name]} | "
+        "{level:<8} | "
+        "{message}\n"
+        "{exception}"
     )
 
-    # Main log file — per run or appending
+    # Main log file
     if per_run:
         run_ts = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        log_filename = os.path.join(log_dir, f"{name}_{run_ts}.log")
+
         logger.add(
-            log_filename,
+            os.path.join(log_dir, f"{name}_{run_ts}.log"),
             level=file_level,
-            format=make_fmt,
-            retention=retention   # rotation not needed for per-run files
+            format=file_format,
+            retention=retention,
+            encoding="utf-8",
         )
     else:
         logger.add(
             os.path.join(log_dir, f"{name}.log"),
             level=file_level,
-            format=make_fmt,
+            format=file_format,
             rotation=rotation,
             retention=retention,
-            compression=compression
+            compression=compression,
+            encoding="utf-8",
         )
 
-    # Errors-only file — always appends across runs, useful for history
+    # Error log file
     logger.add(
         os.path.join(log_dir, f"{name}_errors.log"),
         level=error_level,
-        format=make_fmt,
-        retention="30 days"
+        format=file_format,
+        retention="30 days",
+        encoding="utf-8",
     )
 
-    # Optional JSON structured logs
+    # Optional JSON logs
     if json_logs:
         logger.add(
             os.path.join(log_dir, f"{name}_structured.json"),
             level=file_level,
             serialize=True,
             rotation=rotation,
-            retention=retention
+            retention=retention,
+            encoding="utf-8",
         )
 
     return logger.bind(name=name)
