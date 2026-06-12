@@ -133,13 +133,19 @@ def main():
         joblib.dump(scaler, params["artifacts"]["scaler_path"])
         joblib.dump(label_encoder, params["artifacts"]["label_encoder_path"])
         joblib.dump(rating_medians, params["artifacts"]["rating_medians_path"])
-        
-        with mlflow.start_run(experiment_id=mlflow.get_experiment_by_name("airline-satisfaction").experiment_id):
+        mlflow.set_experiment("airline-satisfaction_2")
+        with mlflow.start_run() as run :
             mlflow.log_artifact(params["artifacts"]["encoder_path"],       artifact_path="preprocessors")
             mlflow.log_artifact(params["artifacts"]["scaler_path"],        artifact_path="preprocessors")
             mlflow.log_artifact(params["artifacts"]["label_encoder_path"], artifact_path="preprocessors")
             mlflow.log_artifact(params["artifacts"]["rating_medians_path"],artifact_path="preprocessors")
             logger.info("Preprocessor artifacts logged to MLflow")
+            
+            os.makedirs("reports",exist_ok=True)
+            with open("reports/mlflow_run_id.txt","w") as f:
+                f.write(run.info.run_id)
+            logger.info(f"Run ID saved : {run.info.run_id}")
+            
         logger.info("Feature engineering script executed successfully")
         
     except Exception as e:
