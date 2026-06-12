@@ -9,6 +9,7 @@ from typing import Tuple
 from src.logger_config import get_logger
 from src.exception import CustomException
 from src.utils import load_params
+import mlflow
 
 params = load_params()
 
@@ -133,6 +134,12 @@ def main():
         joblib.dump(label_encoder, params["artifacts"]["label_encoder_path"])
         joblib.dump(rating_medians, params["artifacts"]["rating_medians_path"])
         
+        with mlflow.start_run(experiment_id=mlflow.get_experiment_by_name("airline-satisfaction").experiment_id):
+            mlflow.log_artifact(params["artifacts"]["encoder_path"],       artifact_path="preprocessors")
+            mlflow.log_artifact(params["artifacts"]["scaler_path"],        artifact_path="preprocessors")
+            mlflow.log_artifact(params["artifacts"]["label_encoder_path"], artifact_path="preprocessors")
+            mlflow.log_artifact(params["artifacts"]["rating_medians_path"],artifact_path="preprocessors")
+            logger.info("Preprocessor artifacts logged to MLflow")
         logger.info("Feature engineering script executed successfully")
         
     except Exception as e:
