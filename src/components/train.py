@@ -6,7 +6,7 @@ import sys
 import joblib
 from src.logger_config import get_logger
 from src.exception import CustomException
-from src.utils import load_params
+from src.utils import load_params,setup_mlflow
 # from dvclive import Live
 import mlflow
 import mlflow.xgboost
@@ -71,6 +71,8 @@ def save_model(model,file_path:str)->None:
     
 def main():
     try:
+        
+        
         model_params = {
             "n_estimators":     params["model"]["n_estimators"],
             "learning_rate":    params["model"]["learning_rate"],
