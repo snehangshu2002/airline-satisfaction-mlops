@@ -16,3 +16,4 @@ logs
 *.pkl
 *.log
 /dvclive
+*.db
