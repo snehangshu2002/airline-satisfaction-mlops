@@ -16,7 +16,7 @@ params = load_params()
 # Configure logger
 logger = get_logger( os.path.splitext(os.path.basename(__file__))[0])
 
-
+mlflow.set_tracking_uri("https://dagshub.com/snehangshu2002/airline-satisfaction-mlops.mlflow")
 
 def feature_engineering(train_data: pd.DataFrame, test_data: pd.DataFrame) -> Tuple[pd.DataFrame, np.ndarray, pd.DataFrame, np.ndarray, OneHotEncoder, StandardScaler, LabelEncoder]:
     """Apply encoder and scaler to the data."""
