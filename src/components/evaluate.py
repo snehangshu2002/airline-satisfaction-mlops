@@ -67,7 +67,7 @@ def save_confusion_matrix_plot(y_test,y_pred,save_path:str)->str:
     
     try:
         os.makedirs(os.path.dirname(save_path),exist_ok=True)
-        fig,ax=plt.subplot(figsize=(6,5))
+        fig,ax=plt.subplots(figsize=(6,5))
         cm = confusion_matrix(y_test,y_pred)
         
         disp =ConfusionMatrixDisplay(
