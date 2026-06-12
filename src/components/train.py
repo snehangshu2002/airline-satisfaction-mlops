@@ -88,9 +88,17 @@ def main():
         X_train = train_data.drop(columns=[target])
         y_train = train_data[target]
         
-        mlflow.set_experiment("airline-satisfaction")
+        # Resume the MLflow run started in train.py
+        run_id_path = "reports/mlflow_run_id.txt"
+        if os.path.exists(run_id_path):
+            with open(run_id_path) as f:
+                run_id = f.read().strip()
+            logger.info(f"Resuming MLflow run: {run_id}")
+        else:
+            run_id = None
+            logger.warning("No MLflow run ID found — starting a new run")
         
-        with mlflow.start_run() as run:
+        with mlflow.start_run(run_id=run_id) as run:
             logger.info(f"MLflow run started: {run.info.run_id}")
             
             #Log all hyperparameter
@@ -101,19 +109,21 @@ def main():
             
             model = train_model(X_train,y_train,model_params)
             
-            # mlflow.xgboost.log_model(model,artifact_path="xgboost-model")
+            mlflow.xgboost.log_model(
+                    model,
+                    artifact_path="xgboost-model",
+                    input_example=X_train.iloc[:5]   
+                )
+
             
              
             model_save_path = params["artifacts"]["model_path"]
             save_model(model,model_save_path)
-            mlflow.log_artifact(model_save_path,artifact_path="model")
+            # mlflow.log_artifact(model_save_path,artifact_path="model")
             
             
 
-            os.makedirs("reports",exist_ok=True)
-            with open("reports/mlflow_run_id.txt","w") as f:
-                f.write(run.info.run_id)
-            logger.info(f"Run ID saved : {run.info.run_id}")
+            
             
             logger.info("Training pipeline completed successfully")
     except Exception as e:
