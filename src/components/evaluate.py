@@ -1,6 +1,5 @@
 import json
 import os
-import sys
 
 import joblib
 import matplotlib.pyplot as plt
@@ -20,7 +19,6 @@ from sklearn.metrics import (
     roc_auc_score,
 )
 
-from src.exception import CustomException
 from src.logger_config import get_logger
 from src.utils import load_params
 
@@ -55,8 +53,9 @@ def evaluate_model(model, X_test: np.ndarray, y_test: np.ndarray) -> dict:
 
         return metrics_dict, y_pred, y_pred_prob
 
-    except Exception as e:
-        CustomException(e, sys)
+    except Exception:
+        logger.exception("Model evaluation metrics calculation failed")
+        raise
 
 
 def save_metrics(metrics: dict, file_path: str) -> None:
@@ -68,8 +67,9 @@ def save_metrics(metrics: dict, file_path: str) -> None:
         with open(file_path, "w") as file:
             json.dump(metrics, file, indent=4)
         logger.debug("Metrics saved to %s", file_path)
-    except Exception as e:
-        CustomException(e, sys)
+    except Exception:
+        logger.exception(f"Failed to save metrics to {file_path}")
+        raise
 
 
 def save_confusion_matrix_plot(y_test, y_pred, save_path: str) -> str:
@@ -92,8 +92,9 @@ def save_confusion_matrix_plot(y_test, y_pred, save_path: str) -> str:
         logger.debug(f"Confusion matrix plot saved to {save_path}")
 
         return save_path
-    except Exception as e:
-        CustomException(e, sys)
+    except Exception:
+        logger.exception("Failed to generate or save confusion matrix plot")
+        raise
 
 
 def save_roc_curve_plot(model, X_test, y_test, save_path: str) -> str:
@@ -108,8 +109,9 @@ def save_roc_curve_plot(model, X_test, y_test, save_path: str) -> str:
         plt.close()
         logger.debug(f"ROC curve plot saved to {save_path}")
         return save_path
-    except Exception as e:
-        raise CustomException(e, sys)
+    except Exception:
+        logger.exception("Failed to generate or save ROC curve plot")
+        raise
 
 
 def save_feature_importance_plot(model, feature_names: list, save_path: str) -> str:
@@ -132,8 +134,9 @@ def save_feature_importance_plot(model, feature_names: list, save_path: str) -> 
         plt.close()
         logger.debug(f"Feature importance plot saved to {save_path}")
         return save_path
-    except Exception as e:
-        raise CustomException(e, sys)
+    except Exception:
+        logger.exception("Failed to generate or save feature importance plot")
+        raise
 
 
 def main():
@@ -190,12 +193,10 @@ def main():
             )
             mlflow.log_artifact(fi_plot_path, artifact_path="plots")
             logger.info(f"Evaluation complete: {metrics}")
-    except Exception as e:
-        CustomException(e, sys)
+    except Exception:
+        logger.exception("Model evaluation pipeline failed")
+        raise
 
 
 if __name__ == "__main__":
-    try:
-        main()
-    except CustomException:
-        sys.exit(1)
+    main()
