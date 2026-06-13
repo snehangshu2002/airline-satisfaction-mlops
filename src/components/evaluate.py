@@ -22,8 +22,6 @@ from sklearn.metrics import (
 from src.logger_config import get_logger
 from src.utils import load_params
 
-
-
 logger = get_logger(os.path.splitext(os.path.basename(__file__))[0])
 
 

@@ -10,8 +10,6 @@ from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler
 from src.logger_config import get_logger
 from src.utils import load_params, setup_mlflow
 
-
-
 # Configure logger
 logger = get_logger(os.path.splitext(os.path.basename(__file__))[0])
 
