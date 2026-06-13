@@ -16,7 +16,9 @@
 
 import json
 import os
+
 import matplotlib
+
 matplotlib.use('Agg')
 from unittest.mock import MagicMock, patch
 
