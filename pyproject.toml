@@ -48,6 +48,7 @@ select = [
     "F",   # pyflakes (unused imports, undefined names)
     "W",   # pycodestyle warnings (trailing whitespace)
     "I",   # isort (import ordering)
+    
 ]
 
 ignore = [
