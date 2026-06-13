@@ -1,5 +1,4 @@
 import os
-import sys
 from typing import Tuple
 
 import joblib
@@ -8,7 +7,6 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler
 
-from src.exception import CustomException
 from src.logger_config import get_logger
 from src.utils import load_params, setup_mlflow
 
@@ -110,8 +108,9 @@ def feature_engineering(
             rating_medians,
         )
 
-    except Exception as e:
-        raise CustomException(e, sys)
+    except Exception:
+        logger.exception("Feature engineering transformation failed")
+        raise
 
 
 def main():
@@ -191,12 +190,10 @@ def main():
 
         logger.info("Feature engineering script executed successfully")
 
-    except Exception as e:
-        raise CustomException(e, sys)
+    except Exception:
+        logger.exception("Feature engineering pipeline failed")
+        raise
 
 
 if __name__ == "__main__":
-    try:
-        main()
-    except CustomException:
-        sys.exit(1)
+    main()
