@@ -29,7 +29,7 @@ def sample_raw_data():
         "Satisfaction": ["satisfied", "neutral or dissatisfied", "satisfied", "neutral or dissatisfied"],
         }
     )
-    
+
 @pytest.fixture
 def sample_train_df():
     return pd.DataFrame({
@@ -79,9 +79,9 @@ def sample_test_df():
         "Baggage Handling": [3, 4],
         "Satisfaction": ["satisfied", "neutral or dissatisfied"],
     })
-    
-    
-    
+
+
+
 @pytest.fixture
 def dummy_model():
     class DummyModel:
