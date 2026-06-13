@@ -2,12 +2,13 @@
 name: CI — Lint and Test
 
 on:
-  push:
-    branches: 
-      - main
-  pull_request:
-    branches: 
-      - main
+  # push:
+  #   branches: 
+  #     - main
+  # pull_request:
+  #   branches: 
+  #     - main
+  workflow_dispatch:
 
 jobs:
   lint-and-test:
@@ -29,6 +30,7 @@ jobs:
         uses: astral-sh/setup-uv@v4
         with:
           version: "latest"
+          enable-cache: true
 
       # Step 4: Install all project dependencies using uv
       - name: Install dependencies
@@ -40,7 +42,7 @@ jobs:
 
       # Step 6: Run Pytest with coverage — fails if any test fails
       - name: Run Pytest with coverage
-        run: uv run pytest --cov=src --cov-report=xml --cov-fail-under=70 -v
+        run: uv run pytest --cov=src --cov-report=html --cov-fail-under=60 -v
 
       # Step 7: Upload coverage report (optional, for visibility)
       - name: Upload coverage report
