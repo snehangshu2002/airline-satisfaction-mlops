@@ -1,7 +1,6 @@
 # logger_config.py
 
 import os
-import sys
 from datetime import datetime
 
 from loguru import logger
