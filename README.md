@@ -1,5 +1,7 @@
 # Airline Passenger Satisfaction MLOps Pipeline
 
+[![CI — Lint and Test](https://github.com/snehangshu2002/airline-satisfaction-mlops/actions/workflows/ci.yml/badge.svg)](https://github.com/snehangshu2002/airline-satisfaction-mlops/actions/workflows/ci.yml)
+
 An end-to-end machine learning pipeline for predicting airline passenger satisfaction.
 The project uses **DVC** for data and pipeline versioning, **DVCLive** for experiment tracking,
 and **XGBoost** for model training.
