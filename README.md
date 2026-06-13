@@ -3,7 +3,7 @@
 [![CI — Lint and Test](https://github.com/snehangshu2002/airline-satisfaction-mlops/actions/workflows/ci.yml/badge.svg)](https://github.com/snehangshu2002/airline-satisfaction-mlops/actions/workflows/ci.yml)
 
 An end-to-end machine learning pipeline for predicting airline passenger satisfaction.
-The project uses **DVC** for data and pipeline versioning, **DVCLive** for experiment tracking,
+The project uses **DVC** for data and pipeline versioning, **MLflow** for experiment tracking, **DagsHub** for remote tracking/storage,
 and **XGBoost** for model training.
 
 ## Overview
@@ -27,13 +27,13 @@ All stages are reproducible through `dvc repro`.
 
 3. **Model training**
    - Trains an `XGBClassifier`
-   - Logs hyperparameters and training metadata with DVCLive
+   - Logs hyperparameters and training metadata with MLflow
    - Saves the trained model artifact
 
 4. **Model evaluation**
    - Loads the trained model and processed test data
    - Computes accuracy, precision, recall, and AUC
-   - Logs metrics and plots through DVCLive
+   - Logs metrics and plots through MLflow
    - Writes final evaluation metrics to `reports/metrics.json`
 
 ## Project Structure
@@ -135,13 +135,18 @@ Project parameters are defined in `params.yaml`:
 
 ## Experiment Tracking
 
-This project uses **DVCLive** in the training and evaluation stages to record:
+This project uses **MLflow** connected to **DagsHub** in the training and evaluation stages to record:
 
 - hyperparameters
 - evaluation metrics
-- confusion matrix and ROC plots
+- confusion matrix, ROC, and feature importance plots
 
-The corresponding files are stored in `dvclive/` and tracked by DVC as part of the pipeline.
+The corresponding artifacts and metrics are logged to the remote MLflow tracking server hosted on DagsHub.
+
+## CI/CD Artifacts
+
+You can find the artifact report of the latest CI run here: 
+[CI Artifact Report](https://github.com/snehangshu2002/airline-satisfaction-mlops/actions/runs/27475900370/artifacts/7613535746)
 
 ## Notes
 
