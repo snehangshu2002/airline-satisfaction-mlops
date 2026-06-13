@@ -1,11 +1,9 @@
 import os
-import sys
 
 import mlflow
 import yaml
 from dotenv import load_dotenv
 
-from src.exception import CustomException
 from src.logger_config import get_logger
 
 load_dotenv()
@@ -21,8 +19,9 @@ def load_params(path: str = "params.yaml") -> dict:
             params = yaml.safe_load(f)
         logger.debug(f"Params loaded from {path}")
         return params
-    except Exception as e:
-        CustomException(e, sys)
+    except Exception:
+        logger.exception(f"Failed to load params from {path}")
+        raise
 
 
 def setup_mlflow(experiment_name: str) -> None:
