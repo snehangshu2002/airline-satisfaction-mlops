@@ -16,6 +16,8 @@
 
 import json
 import os
+import matplotlib
+matplotlib.use('Agg')
 from unittest.mock import MagicMock, patch
 
 import numpy as np
@@ -245,7 +247,7 @@ class TestSaveRocCurvePlot:
         # WHAT: After the call, a .png file must exist at save_path.
         save_path = str(tmp_path / "plots" / "roc_curve.png")
 
-        with patch("src.evaluate.RocCurveDisplay") as mock_roc:
+        with patch("src.components.evaluate.RocCurveDisplay") as mock_roc:
             save_roc_curve_plot(mock_model, sample_X, sample_y, save_path)
 
         assert os.path.exists(save_path)
@@ -254,7 +256,7 @@ class TestSaveRocCurvePlot:
         # WHAT: The function must return the path of the saved file.
         save_path = str(tmp_path / "plots" / "roc_curve.png")
 
-        with patch("src.evaluate.RocCurveDisplay"):
+        with patch("src.components.evaluate.RocCurveDisplay"):
             result = save_roc_curve_plot(mock_model, sample_X, sample_y, save_path)
 
         assert result == save_path
@@ -263,7 +265,7 @@ class TestSaveRocCurvePlot:
         # WHAT: The function should create "reports/plots/" if it doesn't exist.
         save_path = str(tmp_path / "brand_new_dir" / "roc_curve.png")
 
-        with patch("src.evaluate.RocCurveDisplay"):
+        with patch("src.components.evaluate.RocCurveDisplay"):
             save_roc_curve_plot(mock_model, sample_X, sample_y, save_path)
 
         assert os.path.exists(save_path)
