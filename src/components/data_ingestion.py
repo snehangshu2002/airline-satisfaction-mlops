@@ -1,10 +1,8 @@
 import os
-import sys
 
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-from src.exception import CustomException
 from src.logger_config import get_logger
 from src.utils import load_params
 
@@ -22,8 +20,9 @@ def load_data(data_url: str) -> pd.DataFrame:
         logger.debug(f"Loaded {df.shape[0]} rows")
         return df
 
-    except Exception as e:
-        raise CustomException(e, sys)
+    except Exception:
+        logger.exception("Failed to load data from source")
+        raise
 
 
 def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
@@ -43,8 +42,9 @@ def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
         logger.debug("Replaced 0s with median in rating columns")
         return df
 
-    except Exception as e:
-        raise CustomException(e, sys)
+    except Exception:
+        logger.exception("Data preprocessing failed")
+        raise
 
 
 def save_data(
@@ -65,8 +65,9 @@ def save_data(
         test_data.to_csv(test_path, index=False)
         logger.debug(f"Test data saved to {test_path} — shape: {test_data.shape}")
 
-    except Exception as e:
-        raise CustomException(e, sys)
+    except Exception:
+        logger.exception("Failed to save train/test datasets")
+        raise
 
 
 def main():
@@ -87,12 +88,10 @@ def main():
         save_data(train_data, test_data)
         logger.info("Data ingestion completed successfully")
 
-    except Exception as e:
-        raise CustomException(e, sys)
+    except Exception:
+        logger.exception("Data ingestion pipeline failed")
+        raise
 
 
 if __name__ == "__main__":
-    try:
-        main()
-    except CustomException:
-        sys.exit(1)
+    main()
