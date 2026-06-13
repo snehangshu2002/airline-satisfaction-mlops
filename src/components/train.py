@@ -1,5 +1,4 @@
 import os
-import sys
 
 import joblib
 
@@ -10,7 +9,6 @@ import numpy as np
 import pandas as pd
 from xgboost import XGBClassifier
 
-from src.exception import CustomException
 from src.logger_config import get_logger
 from src.utils import load_params
 
@@ -31,8 +29,9 @@ def load_data(file_path: str) -> pd.DataFrame:
         df = pd.read_csv(file_path)
         logger.debug(f"data loaded from {file_path} with shape {df.shape}")
         return df
-    except Exception as e:
-        raise CustomException(e, sys)
+    except Exception:
+        logger.exception(f"Failed to load data from {file_path}")
+        raise
 
 
 def train_model(
@@ -58,8 +57,9 @@ def train_model(
         model.fit(X_train, y_train)
         logger.debug("Model training completed")
         return model
-    except Exception as e:
-        raise CustomException(e, sys)
+    except Exception:
+        logger.exception("Model training failed")
+        raise
 
 
 def save_model(model, file_path: str) -> None:
@@ -75,8 +75,9 @@ def save_model(model, file_path: str) -> None:
             joblib.dump(model, file)
         logger.debug("Model saved to %s", file_path)
 
-    except Exception as e:
-        CustomException(e, sys)
+    except Exception:
+        logger.exception(f"Failed to save model to {file_path}")
+        raise
 
 
 def main():
@@ -128,12 +129,10 @@ def main():
             # mlflow.log_artifact(model_save_path,artifact_path="model")
 
             logger.info("Training pipeline completed successfully")
-    except Exception as e:
-        CustomException(e, sys)
+    except Exception:
+        logger.exception("Model training pipeline failed")
+        raise
 
 
 if __name__ == "__main__":
-    try:
-        main()
-    except CustomException:
-        sys.exit(1)
+    main()
