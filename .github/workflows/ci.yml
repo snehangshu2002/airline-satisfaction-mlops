@@ -1,0 +1,51 @@
+# .github/workflows/ci.yml
+name: CI — Lint and Test
+
+on:
+  push:
+    branches: 
+      - main
+  pull_request:
+    branches: 
+      - main
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Download the repository code onto the runner
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Install Python
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Step 3: Install uv (the package manager)
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      # Step 4: Install all project dependencies using uv
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+
+      # Step 5: Run Ruff linting — fails the build if any lint error is found
+      - name: Run Ruff linter
+        run: uv run ruff check .
+
+      # Step 6: Run Pytest with coverage — fails if any test fails
+      - name: Run Pytest with coverage
+        run: uv run pytest --cov=src --cov-report=xml --cov-fail-under=70 -v
+
+      # Step 7: Upload coverage report (optional, for visibility)
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
+        if: always()  # Upload even if tests fail, for debugging
