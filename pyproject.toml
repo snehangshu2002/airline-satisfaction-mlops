@@ -21,3 +21,41 @@ dependencies = [
     "python-dotenv>=1.2.2",
     "rich>=15.0.0",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.4.0",
+]
+
+# ─── Ruff Configuration ────────────────────────────────────────────────────
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+
+include = ["src/**/*.py", "tests/**/*.py"]
+
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+    "*.ipynb",
+    "experiments/",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors (spacing, syntax)
+    "F",   # pyflakes (unused imports, undefined names)
+    "W",   # pycodestyle warnings (trailing whitespace)
+    "I",   # isort (import ordering)
+]
+
+ignore = [
+    "E501",   # Line too long — ML code often has long strings/paths
+    # F401 is handled per-file below, not globally
+    # W503 removed — not a valid Ruff rule
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]        # re-exports are intentionally "unused"
+"tests/**/*.py" = ["F841"]      # unused variables in tests are acceptable
