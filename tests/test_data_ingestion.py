@@ -92,7 +92,7 @@ class TestPreprocessData:
         # WHAT: Output must always be a DataFrame.
         # WHY: If it accidentally returns None or something else, every downstream
         #      operation will crash with a confusing AttributeError.
-        with patch("src.data_ingestion.load_params", return_value=MOCK_PARAMS_PREPROCESS):
+        with patch("src.components.data_ingestion.load_params", return_value=MOCK_PARAMS_PREPROCESS):
             result = preprocess_data(sample_raw_data)
 
         assert isinstance(result, pd.DataFrame)
@@ -101,7 +101,7 @@ class TestPreprocessData:
         # WHAT: "Flight Distance" column has mixed types in raw data ("2000" as string).
         #       After preprocessing it must be a numeric dtype.
         # WHY: XGBoost and scalers require numeric inputs — strings would break training.
-        with patch("src.data_ingestion.load_params", return_value=MOCK_PARAMS_PREPROCESS):
+        with patch("src.components.data_ingestion.load_params", return_value=MOCK_PARAMS_PREPROCESS):
             result = preprocess_data(sample_raw_data)
 
         assert pd.api.types.is_numeric_dtype(result["Flight Distance"])
@@ -110,7 +110,7 @@ class TestPreprocessData:
         # WHAT: sample_raw_data has one row where Flight Distance is None.
         #       After preprocessing, zero NaN values should remain.
         # WHY: NaNs in features cause errors in sklearn transformers and XGBoost.
-        with patch("src.data_ingestion.load_params", return_value=MOCK_PARAMS_PREPROCESS):
+        with patch("src.components.data_ingestion.load_params", return_value=MOCK_PARAMS_PREPROCESS):
             result = preprocess_data(sample_raw_data)
 
         assert result.isnull().sum().sum() == 0
@@ -118,7 +118,7 @@ class TestPreprocessData:
     def test_specified_columns_are_dropped(self, sample_raw_data):
         # WHAT: Columns listed in drop_cols (here: "ID") must not appear in output.
         # WHY: ID columns are meaningless features that would add noise to the model.
-        with patch("src.data_ingestion.load_params", return_value=MOCK_PARAMS_PREPROCESS):
+        with patch("src.components.data_ingestion.load_params", return_value=MOCK_PARAMS_PREPROCESS):
             result = preprocess_data(sample_raw_data)
 
         assert "ID" not in result.columns
@@ -126,7 +126,7 @@ class TestPreprocessData:
     def test_row_count_reduced_after_null_removal(self, sample_raw_data):
         # WHAT: sample_raw_data has 4 rows; 1 has a null. After dropna(), 3 should remain.
         # WHY: Ensures rows with nulls are actually removed, not silently kept.
-        with patch("src.data_ingestion.load_params", return_value=MOCK_PARAMS_PREPROCESS):
+        with patch("src.components.data_ingestion.load_params", return_value=MOCK_PARAMS_PREPROCESS):
             result = preprocess_data(sample_raw_data)
 
         assert len(result) == 3
@@ -157,7 +157,7 @@ class TestSaveData:
         train_path = str(tmp_path / "data" / "train.csv")
         test_path = str(tmp_path / "data" / "test.csv")
 
-        with patch("src.data_ingestion.load_params", return_value=self._mock_params(train_path, test_path)):
+        with patch("src.components.data_ingestion.load_params", return_value=self._mock_params(train_path, test_path)):
             save_data(sample_train_df, sample_test_df)
 
         assert os.path.exists(train_path)
@@ -167,7 +167,7 @@ class TestSaveData:
         train_path = str(tmp_path / "data" / "train.csv")
         test_path = str(tmp_path / "data" / "test.csv")
 
-        with patch("src.data_ingestion.load_params", return_value=self._mock_params(train_path, test_path)):
+        with patch("src.components.data_ingestion.load_params", return_value=self._mock_params(train_path, test_path)):
             save_data(sample_train_df, sample_test_df)
 
         assert os.path.exists(test_path)
@@ -178,7 +178,7 @@ class TestSaveData:
         train_path = str(tmp_path / "data" / "train.csv")
         test_path = str(tmp_path / "data" / "test.csv")
 
-        with patch("src.data_ingestion.load_params", return_value=self._mock_params(train_path, test_path)):
+        with patch("src.components.data_ingestion.load_params", return_value=self._mock_params(train_path, test_path)):
             save_data(sample_train_df, sample_test_df)
 
         saved_train = pd.read_csv(train_path)
@@ -189,7 +189,7 @@ class TestSaveData:
         train_path = str(tmp_path / "data" / "train.csv")
         test_path = str(tmp_path / "data" / "test.csv")
 
-        with patch("src.data_ingestion.load_params", return_value=self._mock_params(train_path, test_path)):
+        with patch("src.components.data_ingestion.load_params", return_value=self._mock_params(train_path, test_path)):
             save_data(sample_train_df, sample_test_df)
 
         saved_test = pd.read_csv(test_path)
