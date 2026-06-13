@@ -1,5 +1,6 @@
 # exception.py
 import sys
+
 from loguru import logger
 
 
@@ -16,7 +17,7 @@ def error_message_detail(error, error_detail: sys) -> str:
 
     file_name = tb.tb_frame.f_code.co_filename
     func_name = tb.tb_frame.f_code.co_name
-    line_no   = tb.tb_frame.f_lineno       # fixed: f_lineno over tb_lineno
+    line_no = tb.tb_frame.f_lineno  # fixed: f_lineno over tb_lineno
 
     return (
         f"Error occurred in script : [{file_name}] "
