@@ -53,14 +53,20 @@ All stages are reproducible through `dvc repro`.
 │   ├── exception.py
 │   ├── logger_config.py
 │   └── utils.py
+├── tests/
+│   ├── conftest.py
+│   ├── test_data_ingestion.py
+│   ├── test_feature_engineering.py
+│   ├── test_train.py
+│   ├── test_evaluate.py
+│   └── test_utils.py
 ├── data/
 │   ├── airline_satisfaction.csv
 │   ├── raw/
 │   └── processed/
 ├── models/
 ├── reports/
-├── dvclive/
-└── logs/
+
 ```
 
 ## Requirements
@@ -120,8 +126,7 @@ After a successful run, the main outputs are:
 - `models/rating_medians.pkl`
 - `models/xgboost.pkl`
 - `reports/metrics.json`
-- `dvclive/metrics.json`
-- `dvclive/plots/`
+- `reports/plots/`
 
 ## Configuration
 
