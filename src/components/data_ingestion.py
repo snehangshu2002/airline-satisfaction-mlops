@@ -48,7 +48,7 @@ def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def save_data(
-    train_data: pd.DataFrame, test_data: pd.DataFrame, data_path: str
+    train_data: pd.DataFrame, test_data: pd.DataFrame
 ) -> None:
     """save the train and test datasets"""
     try:
@@ -84,7 +84,7 @@ def main():
             f"Train/test split done — train: {train_data.shape}, test: {test_data.shape}"
         )
 
-        save_data(train_data, test_data, data_path=params)
+        save_data(train_data, test_data)
         logger.info("Data ingestion completed successfully")
 
     except Exception as e:
