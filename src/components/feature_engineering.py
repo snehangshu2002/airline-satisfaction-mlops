@@ -10,7 +10,7 @@ from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler
 from src.logger_config import get_logger
 from src.utils import load_params, setup_mlflow
 
-params = load_params()
+
 
 # Configure logger
 logger = get_logger(os.path.splitext(os.path.basename(__file__))[0])
@@ -29,6 +29,7 @@ def feature_engineering(
 ]:
     """Apply encoder and scaler to the data."""
     try:
+        params = load_params()
         logger.info("Starting feature engineering process")
         categorical_cols = params["features"]["categorical_cols"]
         rating_cols = params["features"]["rating_cols"]
@@ -115,6 +116,7 @@ def feature_engineering(
 
 def main():
     try:
+        params = load_params()
         setup_mlflow("airline-satisfaction_3")
         # Define paths
         raw_train = params["data"]["train_path"]

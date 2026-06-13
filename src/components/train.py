@@ -14,7 +14,6 @@ from src.utils import load_params
 
 logger = get_logger(os.path.splitext(os.path.basename(__file__))[0])
 
-params = load_params()
 
 
 def load_data(file_path: str) -> pd.DataFrame:
@@ -82,6 +81,8 @@ def save_model(model, file_path: str) -> None:
 
 def main():
     try:
+        params = load_params()
+
         model_params = {
             "n_estimators": params["model"]["n_estimators"],
             "learning_rate": params["model"]["learning_rate"],

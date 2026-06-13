@@ -8,7 +8,7 @@ from src.utils import load_params
 
 logger = get_logger(os.path.splitext(os.path.basename(__file__))[0])
 
-params = load_params()
+
 
 
 def load_data(data_url: str) -> pd.DataFrame:
@@ -28,6 +28,7 @@ def load_data(data_url: str) -> pd.DataFrame:
 def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
     """Preprosess the data"""
     try:
+        params = load_params()
         logger.info("Preprocessing stated")
         drop_cols = params["features"]["drop_cols"]
 
@@ -52,6 +53,7 @@ def save_data(
 ) -> None:
     """save the train and test datasets"""
     try:
+        params = load_params()
         logger.info("Saving train/test splits")
 
         train_path = params["data"]["train_path"]
@@ -72,6 +74,7 @@ def save_data(
 
 def main():
     try:
+        params = load_params()
         test_size = params["data"]["test_size"]
         raw_path = params["data"]["raw_path"]
         random_state = params["data"]["random_state"]

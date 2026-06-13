@@ -22,7 +22,7 @@ from sklearn.metrics import (
 from src.logger_config import get_logger
 from src.utils import load_params
 
-params = load_params()
+
 
 logger = get_logger(os.path.splitext(os.path.basename(__file__))[0])
 
@@ -141,6 +141,7 @@ def save_feature_importance_plot(model, feature_names: list, save_path: str) -> 
 
 def main():
     try:
+        params = load_params()
         target_col = params["features"]["target_col"]
         model = joblib.load(params["artifacts"]["model_path"])
         logger.info("Model loaded")
