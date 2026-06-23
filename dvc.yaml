@@ -1,74 +1,73 @@
 stages:
   data_ingestion:
-    cmd: uv run src/components/data_ingestion.py
+    cmd: uv run python -m src.components.data_ingestion
     deps:
-    - src/components/data_ingestion.py
-    - data/airline_satisfaction.csv
+      - src/components/data_ingestion.py
+      - data/airline_satisfaction.csv
     params:
-    - data.raw_path
-    - data.test_size
-    - data.random_state
-    - features.drop_cols
-    - features.rating_cols
+      - data.raw_path
+      - data.test_size
+      - data.random_state
+      - features.drop_cols
+      - features.rating_cols
     outs:
-    - data/raw/train.csv
-    - data/raw/test.csv
+      - data/raw/train.csv
+      - data/raw/test.csv
 
   feature_engineering:
-    cmd: uv run src/components/feature_engineering.py
+    cmd: uv run python -m src.components.feature_engineering
     deps:
-    - src/components/feature_engineering.py
-    - data/raw/train.csv
-    - data/raw/test.csv
+      - src/components/feature_engineering.py
+      - data/raw/train.csv
+      - data/raw/test.csv
     params:
-    - data.processed_train_path
-    - data.processed_test_path
-    - features.categorical_cols
-    - features.rating_cols
-    - features.target_col
-    - artifacts.encoder_path
-    - artifacts.scaler_path
-    - artifacts.label_encoder_path
-    - artifacts.rating_medians_path
+      - data.processed_train_path
+      - data.processed_test_path
+      - features.categorical_cols
+      - features.rating_cols
+      - features.target_col
+      - artifacts.encoder_path
+      - artifacts.scaler_path
+      - artifacts.label_encoder_path
+      - artifacts.rating_medians_path
     outs:
-    - data/processed/train.csv
-    - data/processed/test.csv
-    - models/encoder.pkl
-    - models/scaler.pkl
-    - models/label_encoder.pkl
-    - models/rating_medians.pkl
+      - data/processed/train.csv
+      - data/processed/test.csv
+      - models/encoder.pkl
+      - models/scaler.pkl
+      - models/label_encoder.pkl
+      - models/rating_medians.pkl
 
   train:
-    cmd: uv run src/components/train.py
+    cmd: uv run python -m src.components.train
     deps:
-    - src/components/train.py
-    - data/processed/train.csv
+      - src/components/train.py
+      - data/processed/train.csv
     params:
-    - model
-    - features.target_col
-    - artifacts.model_path
+      - model
+      - features.target_col
+      - artifacts.model_path
     outs:
-    - models/xgboost.pkl
-    
+      - models/xgboost.pkl
 
   evaluate:
-    cmd: uv run src/components/evaluate.py
+    cmd: uv run python -m src.components.evaluate
     deps:
-    - src/components/evaluate.py
-    - data/processed/test.csv
-    - models/xgboost.pkl
-    - models/encoder.pkl
-    - models/scaler.pkl
-    - models/label_encoder.pkl
-    - models/rating_medians.pkl
-    - reports/mlflow_run_id.txt 
+      - src/components/evaluate.py
+      - data/processed/test.csv
+      - models/xgboost.pkl
+      - models/encoder.pkl
+      - models/scaler.pkl
+      - models/label_encoder.pkl
+      - models/rating_medians.pkl
+      - reports/mlflow_run_id.txt
     params:
-    - data.processed_test_path
-    - features.target_col
-    - features.rating_cols
-    - features.categorical_cols
-    - artifacts
-    - evaluate.metrics_path
+      - data.processed_test_path
+      - features.target_col
+      - features.rating_cols
+      - features.categorical_cols
+      - artifacts
+      - evaluate.metrics_path
     metrics:
-    - reports/metrics.json:
-        cache: false
+      - reports/metrics.json:
+          cache: false
