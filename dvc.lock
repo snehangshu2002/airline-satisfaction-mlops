@@ -1,20 +1,22 @@
 schema: '2.0'
 stages:
   data_ingestion:
-    cmd: uv run src/components/data_ingestion.py
+    cmd: uv run python -m src.components.data_ingestion
     deps:
     - path: data/airline_satisfaction.csv
       hash: md5
       md5: d26e19c434f20d0c7e2f5ed586008f07
       size: 12875200
+      isexec: true
     - path: src/components/data_ingestion.py
       hash: md5
-      md5: 55cab834515c1a2758f83c7a26bc2a64
-      size: 2979
+      md5: a748599491c31e1db43cab6870d669a0
+      size: 2960
+      isexec: true
     params:
       params.yaml:
         data.random_state: 42
-        data.raw_path: data\airline_satisfaction.csv
+        data.raw_path: data/airline_satisfaction.csv
         data.test_size: 0.2
         features.drop_cols: -ID
         features.rating_cols:
@@ -35,27 +37,28 @@ stages:
     outs:
     - path: data/raw/test.csv
       hash: md5
-      md5: f7c72ba0ada0d392fe530b908a884232
-      size: 2672374
+      md5: 87b8513ef936c93d53b8d7864c366e6f
+      size: 2646476
     - path: data/raw/train.csv
       hash: md5
-      md5: 39c08f43e703ebc7fdfdddb916ded121
-      size: 10682225
+      md5: 701e8eacec90778b4d674a5663996a33
+      size: 10578637
   feature_engineering:
-    cmd: uv run src/components/feature_engineering.py
+    cmd: uv run python -m src.components.feature_engineering
     deps:
     - path: data/raw/test.csv
       hash: md5
-      md5: f7c72ba0ada0d392fe530b908a884232
-      size: 2672374
+      md5: 87b8513ef936c93d53b8d7864c366e6f
+      size: 2646476
     - path: data/raw/train.csv
       hash: md5
-      md5: 39c08f43e703ebc7fdfdddb916ded121
-      size: 10682225
+      md5: 701e8eacec90778b4d674a5663996a33
+      size: 10578637
     - path: src/components/feature_engineering.py
       hash: md5
-      md5: 77d3961bc420b400f606a6d114820b5f
-      size: 6802
+      md5: 6b099a2b2a5f7045d356fbb3a6788d16
+      size: 7072
+      isexec: true
     params:
       params.yaml:
         artifacts.encoder_path: models/encoder.pkl
@@ -88,12 +91,12 @@ stages:
     outs:
     - path: data/processed/test.csv
       hash: md5
-      md5: 2f784fbae6d08c42d6e8589fa71b2a9e
-      size: 14350884
+      md5: 5f4e707912e2aa6456256e1f001d7c6d
+      size: 14324986
     - path: data/processed/train.csv
       hash: md5
-      md5: df45c58917885343080104f2567725c7
-      size: 57398013
+      md5: a72875b0cd9376c18dfa18e9e36ff0c2
+      size: 57294425
     - path: models/encoder.pkl
       hash: md5
       md5: 2a8b6b6c47f44decb5bddf39db86de69
@@ -111,16 +114,17 @@ stages:
       md5: acf02daf78122db3c73d87e5b70173db
       size: 2055
   train:
-    cmd: uv run src/components/train.py
+    cmd: uv run python -m src.components.train
     deps:
     - path: data/processed/train.csv
       hash: md5
-      md5: df45c58917885343080104f2567725c7
-      size: 57398013
+      md5: a72875b0cd9376c18dfa18e9e36ff0c2
+      size: 57294425
     - path: src/components/train.py
       hash: md5
-      md5: eeac29379c5e3fca4fcdc45efe148e42
-      size: 4599
+      md5: f433d6c7defb417456c672cbc889a4de
+      size: 4361
+      isexec: true
     params:
       params.yaml:
         artifacts.model_path: models/xgboost.pkl
@@ -136,15 +140,15 @@ stages:
     outs:
     - path: models/xgboost.pkl
       hash: md5
-      md5: b7d42fca6ad34f83255586b5e136d908
-      size: 722127
+      md5: 714caf26965c7bbfe726b258bd5b21a1
+      size: 732803
   evaluate:
-    cmd: uv run src/components/evaluate.py
+    cmd: uv run python -m src.components.evaluate
     deps:
     - path: data/processed/test.csv
       hash: md5
-      md5: 2f784fbae6d08c42d6e8589fa71b2a9e
-      size: 14350884
+      md5: 5f4e707912e2aa6456256e1f001d7c6d
+      size: 14324986
     - path: models/encoder.pkl
       hash: md5
       md5: 2a8b6b6c47f44decb5bddf39db86de69
@@ -163,16 +167,18 @@ stages:
       size: 2055
     - path: models/xgboost.pkl
       hash: md5
-      md5: b7d42fca6ad34f83255586b5e136d908
-      size: 722127
+      md5: 714caf26965c7bbfe726b258bd5b21a1
+      size: 732803
     - path: reports/mlflow_run_id.txt
       hash: md5
-      md5: a1322aa4b98546b95d432b96d4927751
+      md5: d7cf8e9fd8f753accab13310e091517b
       size: 32
+      isexec: true
     - path: src/components/evaluate.py
       hash: md5
-      md5: f790d2bb92cb8fde9ca21ab7e8180461
-      size: 6881
+      md5: 52d22ebdb5d75029e6e79bcdb2ba7bd0
+      size: 6844
+      isexec: true
     params:
       params.yaml:
         artifacts:
@@ -208,5 +214,5 @@ stages:
     outs:
     - path: reports/metrics.json
       hash: md5
-      md5: 5678e1b7ca7d31a562f1646f4dfb3d83
-      size: 145
+      md5: c24ae83eeea3e47f99223ae0fd6d45d6
+      size: 140
